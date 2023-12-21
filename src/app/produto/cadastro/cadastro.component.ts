@@ -8,6 +8,7 @@ import { switchMap } from 'rxjs/operators';
 import { Produto } from '../../shared/model/produto';
 import { ProdutoService } from '../../shared/services/produto.service';
 import { addMonths } from 'date-fns';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-cadastro',
@@ -28,11 +29,11 @@ export class CadastroComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private produtoService: ProdutoFirestoreService
-    ,
+    private produtoService: ProdutoService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private location: Location
   ) { }
 
   ngOnInit(): void {
@@ -62,7 +63,7 @@ export class CadastroComponent implements OnInit {
           this.produtoId = params['id'];
           // Retorna o Observable do produto correspondente ao ID
           // return this.produtoService.pesquisarPorId(this.produtoId);
-          return this.produtoService.pesquisarPorId(params['id']);
+          return this.produtoService.getProdutoById(params['id']);
         } else {
           // Se não houver ID, retorna um Observable vazio
           return [];
@@ -120,6 +121,10 @@ export class CadastroComponent implements OnInit {
     return new Date();
   }
 
+  onCancel() {
+    this.location.back();
+  }
+
   onSubmit(): void {
     const dataFimGarantia = this.calcularDataFimGarantia();
     this.produtoForm.patchValue({ dataFimGarantia });
@@ -129,25 +134,25 @@ export class CadastroComponent implements OnInit {
 
       if (this.isEditing) {
         produto.id = this.produtoId;
-        this.produtoService.atualizar(produto).subscribe(
+        this.produtoService.updateProduto(produto).subscribe(
           () => {
             this.snackBar.open('Produto atualizado com sucesso', 'Fechar', {});
             this.dialog.closeAll();
           },
           (error) => {
             console.error(error);
-            this.snackBar.open('Erro ao atualizar o produto', 'Fechar', {});
+            this.snackBar.open('Erro ao atualizar o produto', 'Fechar', { duration: 10000 });
           }
         );
       } else {
-        this.produtoService.inserir(produto).subscribe(
+        this.produtoService.addProduto(produto).subscribe(
           () => {
-            this.snackBar.open('Produto cadastrado com sucesso', 'Fechar', {});
+            this.snackBar.open('Produto cadastrado com sucesso', 'Fechar', { duration: 10000 });
             this.dialog.closeAll();
           },
           (error) => {
             console.error(error);
-            this.snackBar.open('Erro ao cadastrar o produto', 'Fechar', {});
+            this.snackBar.open('Erro ao cadastrar o produto', 'Fechar', { duration: 10000 });
           }
         );
       }
