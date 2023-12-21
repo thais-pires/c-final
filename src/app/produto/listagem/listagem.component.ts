@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatIcon } from '@angular/material/icon';
 import { MatPaginator, MatPaginatorIntl } from '@angular/material/paginator';
 
 import { ProdutoService } from '../../shared/services/produto.service';
@@ -23,14 +23,14 @@ export class ListagemComponent implements OnInit {
   dataSource: MatTableDataSource<Produto> = new MatTableDataSource<Produto>();
 
   // Colunas exibidas na tabela
-  displayedColumns: string[] = ['id', 'nome', 'dataCompra', 'duracaoGarantiaMeses', 'dataFimGarantia', 'options'];
+  displayedColumns: string[] = ['nome', 'dataCompra', 'duracaoGarantiaMeses', 'dataFimGarantia', 'options'];
 
   // Referências para os elementos MatSort e MatPaginator usando ViewChild
   @ViewChild(MatSort) sort: MatSort = new MatSort();
   @ViewChild(MatPaginator) paginator: MatPaginator = new MatPaginator(new MatPaginatorIntl(), this.cdr);
 
   // Injeção do serviço de produtos e do Router no construtor
-  constructor(private produtoService: ProdutoService, private cdr: ChangeDetectorRef, private router: Router, private dialog: MatDialog) { }
+  constructor(private produtoService: ProdutoFirestoreService, private cdr: ChangeDetectorRef, private router: Router, private dialog: MatDialog) { }
 
   // Método chamado ao iniciar o componente
   ngOnInit(): void {
@@ -41,7 +41,7 @@ export class ListagemComponent implements OnInit {
   // Método para carregar os produtos do serviço e configurar a fonte de dados da tabela
   carregarProdutos(): void {
     // Chama o serviço para obter a lista de produtos
-    this.produtoService.getProdutos().subscribe((produtos) => {
+    this.produtoService.listar().subscribe((produtos) => {
       // Cria uma fonte de dados para a tabela com a lista de produtos obtida
       this.dataSource = new MatTableDataSource(produtos);
 
@@ -71,9 +71,9 @@ export class ListagemComponent implements OnInit {
   }
 
   // Método para remover um produto com base no ID do produto
-  removerProduto(id: number): void {
+  removerProduto(id: string): void {
     // Chama o serviço para remover o produto com base no ID
-    this.produtoService.deleteProduto(id).subscribe(() => {
+    this.produtoService.apagar(id).subscribe(() => {
       // Atualiza a lista após a remoção
       this.carregarProdutos();
     });

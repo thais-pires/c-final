@@ -75,7 +75,6 @@
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
-          "sourceLocale": "pt-BR",
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
             "browserTarget": "garantia-control:build"
